@@ -20,11 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Build participants HTML (pretty pill badges). If none, show friendly text.
+        let participantsHTML = "";
+        const participants = Array.isArray(details.participants) ? details.participants : [];
+        if (participants.length > 0) {
+          participantsHTML = `<div class="participants"><h5 class="participants-title">Participants (${participants.length})</h5><ul class="participants-list">`;
+          participants.forEach((p) => {
+            // friendly display name from email local part
+            const local = (p || "").split("@")[0] || p;
+            const display = local
+              .split(/[\._\-]+/)
+              .filter(Boolean)
+              .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+              .join(" ");
+            participantsHTML += `<li><span class="participant-badge">${display}</span></li>`;
+          });
+          participantsHTML += `</ul></div>`;
+        } else {
+          participantsHTML = `<p class="no-participants">No participants yet</p>`;
+        }
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          ${participantsHTML}
         `;
 
         activitiesList.appendChild(activityCard);
